@@ -19,7 +19,7 @@ class registerFragment : Fragment() {
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
 
 
-        binding.click.setOnClickListener{
+        binding.txtError.setOnClickListener{
             findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
         }
         return  binding.root
