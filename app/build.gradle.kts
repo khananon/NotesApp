@@ -65,4 +65,5 @@ dependencies {
 
     // SpinKit
     implementation(libs.spinkit)
+    implementation(libs.material)
 }
