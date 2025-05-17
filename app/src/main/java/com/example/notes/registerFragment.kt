@@ -5,12 +5,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notes.databinding.FragmentRegisterBinding
+import com.example.notes.models.UserRequest
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class registerFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
     private val binding get()=_binding!!
+    private val authViewModel by viewModels<AuthViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -19,10 +24,12 @@ class registerFragment : Fragment() {
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
 
         binding.btnSignUp.setOnClickListener{
-            findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
+//            findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
+            authViewModel.registerUser(UserRequest("test01@gmail.com","test123","test"))
         }
         binding.btnLogin.setOnClickListener{
-            findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+//            findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+            authViewModel.loginUser(UserRequest("test01@gmail.com","test123","test"))
         }
         return  binding.root
     }

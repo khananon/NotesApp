@@ -29,14 +29,19 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         viewBinding=true
+    }
+}
+configurations.all {
+    resolutionStrategy {
+        force("com.squareup:javapoet:1.13.0")
     }
 }
 
@@ -46,6 +51,7 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.activity:activity:1.10.1")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("com.squareup:javapoet:1.13.0")
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.lifecycle.viewmodel)
@@ -66,4 +72,6 @@ dependencies {
     // SpinKit
     implementation(libs.spinkit)
     implementation(libs.material)
+
+
 }
