@@ -27,6 +27,7 @@ class UserRepository @Inject constructor(private val userApi: UserAPI) {
 
 
     suspend fun loginUser(userRequest: UserRequest) {
+        _userResponseLiveData.postValue(NetworkResult.Loading())
         val response = userApi.signin(userRequest)
         handleResonse(response)
     }

@@ -1,0 +1,93 @@
+
+graph TD
+A[App Launch] --> B{Splash Screen/Initial Check};
+B -- User Not Logged In --> C["Login/Register Flow"];
+B -- "User Already Logged In (e.g., token saved)" --> D[Main Notes Screen (MainFragment)];
+
+subgraph Login/Register Flow
+C --> E[Register Screen (registerFragment)];
+C --> F[Login Screen (loginFragment) - Can be reached from Register Screen too];
+
+E -- User clicks 'Sign Up' --> G[registerFragment.onSignUpClick];
+G --> H[authViewModel.registerUser(UserRequest)];
+H --> I[userRepository.registerUser(UserRequest) - via ViewModel];
+I --> J[userApi.signup(UserRequest) - Retrofit call via Repository];
+J -- Network Call --> K[Backend API: /users/signup];
+K -- API Response (Success/Error) --> J;
+J -- Result --> I;
+I -- Updates LiveData (e.g., NetworkResult.Loading/Success/Error) --> H;
+H -- LiveData Observed by registerFragment --> L[registerFragment UI Updates];
+L -- On Success --> D;
+L -- On Error --> M[Display Error on registerFragment];
+
+F -- User clicks 'Login' --> N[loginFragment.onLoginClick];
+N --> O[authViewModel.loginUser(UserRequest)];
+O --> P[userRepository.loginUser(UserRequest) - via ViewModel];
+P --> Q[userApi.signin(UserRequest) - Retrofit call via Repository];
+Q -- Network Call --> R[Backend API: /users/signin];
+R -- API Response (Success/Error/Token) --> Q;
+Q -- Result --> P;
+P -- Updates LiveData (e.g., NetworkResult.Loading/Success/Error) --> O;
+O -- LiveData Observed by loginFragment --> S[loginFragment UI Updates];
+S -- On Success (Token Received & Saved) --> D;
+S -- On Error --> T[Display Error on loginFragment];
+end
+
+subgraph Main Notes Area
+D --> U[MainFragment Displays List of Notes];
+U --> V[noteViewModel.fetchAllNotes()];
+V --> W[noteRepository.getAllNotes() - Could be from API or local DB];
+W -- If API --> X[noteApi.getNotes() - Retrofit];
+X -- Network Call --> Y[Backend API: /notes];
+Y -- API Response --> X;
+X -- Result --> W;
+W -- Updates LiveData --> V;
+V -- LiveData Observed by MainFragment --> U;
+
+U -- User clicks 'Add Note' --> Z[Navigate to Add/Edit Note Screen (NoteDetailFragment)];
+U -- User clicks on existing note --> Z;
+
+Z --> AA[NoteDetailFragment (for Create/Update)];
+AA -- User saves note --> AB[noteViewModel.saveNote(Note)];
+AB --> AC[noteRepository.saveNote(Note) - API or local DB];
+AC -- If API --> AD[noteApi.createNote() or noteApi.updateNote()];
+AD -- Network Call --> AE[Backend API: /notes (POST or PUT)];
+AE -- API Response --> AD;
+AD -- Result --> AC;
+AC -- Result --> AB;
+AB -- LiveData/Event to navigate back or show success --> AA;
+AA -- Navigate Back --> D;
+
+U -- User performs action (e.g., delete) --> AF[noteViewModel.deleteNote(NoteId)];
+AF --> AG[noteRepository.deleteNote(NoteId)];
+AG -- If API --> AH[noteApi.deleteNote(NoteId)];
+AH -- Network Call --> AI[Backend API: /notes/{id} (DELETE)];
+AI -- API Response --> AH;
+AH -- Result --> AG;
+AG -- Result triggers refresh/update --> V;
+end
+
+subgraph Dependency Injection (Hilt - Happens throughout)
+DI1[Application Class (@HiltAndroidApp)]
+DI2[NetworkModule (@Module, @Provides Retrofit, UserApi, NoteApi)]
+DI3[RepositoryModule (@Module, @Provides UserRepository, NoteRepository - if not constructor injected)]
+DI4[ViewModels (@HiltViewModel, @Inject constructor for Repositories)]
+DI5[Fragments/Activities (@AndroidEntryPoint, inject ViewModels)]
+end
+
+%% Styling
+classDef screen fill:#cde,stroke:#333,stroke-width:2px;
+classDef action fill:#f9f,stroke:#333,stroke-width:1px;
+classDef vm fill:#ccf,stroke:#333,stroke-width:1px;
+classDef repo fill:#cfc,stroke:#333,stroke-width:1px;
+classDef apiCall fill:#fcc,stroke:#333,stroke-width:1px;
+classDef backend fill:#ffc,stroke:#333,stroke-width:1px;
+classDef di fill:#eef,stroke:#333,stroke-width:1px;
+
+class A,B,C,D,E,F,U,Z,AA screen;
+class G,N,L,M,S,T action;
+class H,O,V,AB,AF vm;
+class I,P,W,AC,AG repo;
+class J,Q,X,AD,AH apiCall;
+class K,R,Y,AE,AI backend;
+class DI1,DI2,DI3,DI4,DI5 di;

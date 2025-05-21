@@ -16,7 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class registerFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
-    private val binding get()=_binding!!
+    private val binding get() = _binding!!
     private val authViewModel by viewModels<AuthViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,39 +25,71 @@ class registerFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
 
-        binding.btnSignUp.setOnClickListener{
-//            findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
-            authViewModel.registerUser(UserRequest("test01@gmail.com","test123","test"))
-        }
-        binding.btnLogin.setOnClickListener{
-//            findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
-            authViewModel.loginUser(UserRequest("test01@gmail.com","test123","test"))
-        }
-        return  binding.root
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        authViewModel.userResponseLiveData.observe(viewLifecycleOwner,{
-            binding.progressBar.isVisible=false
-            when(it){
-                is NetworkResult.Success->{
-                    findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
-                }
-                is NetworkResult.Error->{
-                    binding.txtError.text=it.message
-                }
-                is NetworkResult.Loading->{
-                    binding.progressBar.isVisible=true
-                }
+
+
+        binding.btnSignUp.setOnClickListener {
+            val validateResult = validateUserInput()
+            if (validateResult.first) {
+                authViewModel.registerUser(getUserRequest())
+            }else {
+                binding.txtError.text=validateResult.second
             }
-        })
+
+        }
+        binding.btnLogin.setOnClickListener {
+            findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+        }
+
+
+            bindObserver()
+        }
+    private fun getUserRequest(): UserRequest{
+        val emailAddress = binding.txtEmail.text.toString()
+        val password = binding.txtPassword.text.toString()
+        val username = binding.txtUsername.text.toString()
+        return UserRequest(emailAddress,password,username)
     }
+        private fun validateUserInput(): Pair<Boolean, String> {
+           val userRequest= getUserRequest()
+            return authViewModel.validateCredentials(
+                userRequest.username, userRequest.email, userRequest.password,
+                isLogin = false
+            )
+        }
+
+        private fun bindObserver() {
+
+            authViewModel.userResponseLiveData.observe(viewLifecycleOwner, {
+                binding.progressBar.isVisible = false
+                when (it) {
+                    is NetworkResult.Success -> {
+                        findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
+                    }
+
+                    is NetworkResult.Error -> {
+                        binding.txtError.text = it.message
+                    }
+
+                    is NetworkResult.Loading -> {
+                        binding.progressBar.isVisible = true
+                    }
+                }
+            })
+        }
 
     override fun onDestroyView() {
         super.onDestroyView()//we use this to avoid memory leaks and to destroy with view , without view there is no binding
         _binding = null
     }
 
+    }
 
-}
+
+
+
