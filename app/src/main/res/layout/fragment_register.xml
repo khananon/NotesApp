@@ -126,11 +126,10 @@
 
         <Button
             android:id="@+id/btn_sign_up"
-            style="@style/Widget.Material3.Button"
-            android:backgroundTint="@color/black"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
+            android:background="#181717"
             android:fontFamily="@font/sf_pro_display_bold"
             android:text="@string/txt_sign_up"
             android:textAllCaps="true"
@@ -144,6 +143,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
             android:fontFamily="@font/sf_pro_display_semibold"
+            android:textColor="@color/black"
             android:text="@string/txt_already_have_account"
             android:textSize="14sp" />
 

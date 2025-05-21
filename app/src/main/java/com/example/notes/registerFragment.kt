@@ -5,10 +5,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notes.databinding.FragmentRegisterBinding
 import com.example.notes.models.UserRequest
+import com.example.notes.utils.NetworkResult
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,6 +34,24 @@ class registerFragment : Fragment() {
             authViewModel.loginUser(UserRequest("test01@gmail.com","test123","test"))
         }
         return  binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        authViewModel.userResponseLiveData.observe(viewLifecycleOwner,{
+            binding.progressBar.isVisible=false
+            when(it){
+                is NetworkResult.Success->{
+                    findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
+                }
+                is NetworkResult.Error->{
+                    binding.txtError.text=it.message
+                }
+                is NetworkResult.Loading->{
+                    binding.progressBar.isVisible=true
+                }
+            }
+        })
     }
 
     override fun onDestroyView() {
