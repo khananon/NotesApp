@@ -11,13 +11,17 @@ import androidx.navigation.fragment.findNavController
 import com.example.notes.databinding.FragmentRegisterBinding
 import com.example.notes.models.UserRequest
 import com.example.notes.utils.NetworkResult
+import com.example.notes.utils.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class registerFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
     private val authViewModel by viewModels<AuthViewModel>()
+    @Inject
+    lateinit var  tokenManger: TokenManager
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -25,7 +29,10 @@ class registerFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
 
+ if(tokenManger.getToken()!=null){
+     findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
 
+ }
         return binding.root
     }
 
@@ -69,6 +76,7 @@ class registerFragment : Fragment() {
                 binding.progressBar.isVisible = false
                 when (it) {
                     is NetworkResult.Success -> {
+                        tokenManger.saveToken(it.data!!.token)
                         findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
                     }
 

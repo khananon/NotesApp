@@ -12,6 +12,7 @@ import com.example.notes.databinding.FragmentLoginBinding
 import com.example.notes.databinding.FragmentRegisterBinding
 import com.example.notes.models.UserRequest
 import com.example.notes.utils.NetworkResult
+import com.example.notes.utils.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,6 +21,7 @@ class loginFragment : Fragment() {
 
 private var _binding : FragmentLoginBinding?=null
     private  val binding get()=_binding!!
+    lateinit var  tokenManger: TokenManager
     private val authViewModel by viewModels<AuthViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,6 +71,7 @@ private var _binding : FragmentLoginBinding?=null
            authViewModel.userResponseLiveData.observe(viewLifecycleOwner,{
          when(it) {
              is NetworkResult.Success -> {
+                 tokenManger.saveToken(it.data!!.token)
                findNavController().navigate(R.id.action_loginFragment_to_mainFragment)
              }
 
