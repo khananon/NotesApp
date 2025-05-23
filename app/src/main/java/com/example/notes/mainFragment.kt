@@ -9,10 +9,13 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.notes.api.NotesAPi
 import com.example.notes.databinding.FragmentMainBinding
+import com.example.notes.models.NotesResponse
 import com.example.notes.utils.NetworkResult
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,7 +36,7 @@ private var _binding: FragmentMainBinding? = null
     ): View? {
 
     _binding= FragmentMainBinding.inflate(inflater,container,false)
-
+  adapter = NoteAdapter(::onNoteClick)
         // Inflate the layout for this fragment
         return binding.root
     }
@@ -44,6 +47,9 @@ private var _binding: FragmentMainBinding? = null
         notesViewModel.getNotes()
         binding.noteList.layoutManager= StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         binding.noteList.adapter=adapter
+        binding.addNote.setOnClickListener{
+            findNavController().navigate(R.id.action_mainFragment_to_noteFragment)
+        }
     }
 
     private fun bindObserver() {
@@ -65,6 +71,12 @@ private var _binding: FragmentMainBinding? = null
                 }
             }
         })
+
+    }
+    private fun onNoteClick(notesResponse: NotesResponse){
+        val bundel=Bundle()
+        bundel.putString("note", Gson().toJson(notesResponse))
+        findNavController().navigate(R.id.action_mainFragment_to_noteFragment,bundel)
 
     }
 
